@@ -43,6 +43,18 @@ public class App
     @SuppressWarnings("empty-statement")
     public static void main( String[] args )
     {
+//        checkTweets("fukushi", "#ぼくらの福祉政策");
+//        checkTweets("toshi", "#ぼくらの都市計画・成長戦略");
+//        checkTweets("gyosei", "#ぼくらの行政改革");
+//        checkTweets("bosai", "#ぼくらの防災・危機管理計画");
+//        checkTweets("2020", "#ぼくらの2020年計画");
+        checkTweets("props", "#ぼくらの政策");
+    }
+    
+    public static void checkTweets(String prop, String hashTag)
+    {
+        System.out.println("start: " + hashTag);
+        
         long min_id = -1;
         long end_id = -1;
         long start_id = -1;
@@ -54,39 +66,41 @@ public class App
             InputStream is = new FileInputStream(f);
             props.load(is);
 
-            min_id = Long.parseLong(props.getProperty("min_id", "-1"));
-            start_id = Long.parseLong(props.getProperty("start_id", "-1"));
-            end_id = Long.parseLong(props.getProperty("end_id", "-1"));
+            min_id = Long.parseLong(props.getProperty(prop + ".min_id", "-1"));
+            start_id = Long.parseLong(props.getProperty(prop + ".start_id", "-1"));
+            end_id = Long.parseLong(props.getProperty(prop + ".end_id", "-1"));
         }
-        catch (FileNotFoundException e) { 
+        catch (FileNotFoundException e) {
+            System.out.println("warning: getprops.properties file not found: " + e.getMessage());
         }
         catch (IOException e) { 
+            System.out.println("warning: getprops.properties error: " + e.getMessage());
         }
                 
         // prepare output file        
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
-        String FileName = "props." + sdf.format(new Date()) + ".csv";
+        String FileName = prop + "." + sdf.format(new Date()) + ".csv";
         
-        File csv = null;
-        BufferedWriter bw = null;
+        File csv = new File(FileName);
         int count = 0;
-        try {            
-            csv = new File(FileName);
-            bw = new BufferedWriter(new FileWriter(csv, true));
-        
+        try {                    
+            BufferedWriter bw = new BufferedWriter(new FileWriter(csv, true));
+            
             // read tweets
-            int loop = 0;
             try {
                 // prepare twitter api
                 Twitter twitter = new TwitterFactory().getInstance();
                 Query query = new Query();
 
                 // loop
-                boolean done = false;
                 boolean first = true;
-                for (loop = 0; loop < 450; loop ++) {
+                for (int loop = 0; loop < 450; loop ++) {
+                    System.out.println("info: loop " + ((Integer) loop).toString()
+                            + " for " + hashTag
+                    );
+                    
                     // 検索条件
-                    query.setQuery("#‎ぼくらの政策‬");
+                    query.setQuery(hashTag);
                     query.setCount(100);
                     if (min_id > 0) {
                         query.maxId(min_id - 1);
@@ -101,20 +115,15 @@ public class App
 
                     // check if we are at last page
                     if (tweets.isEmpty()) {
-                        done = true;
-
-                        // see if we need to restart search
-                        if (done) {
-                            end_id = start_id;
-                            start_id = -1;
-                            min_id = -1;
-                        }
-
                         // if there is nothing to get exit
                         if (first) {
                             break;
                         }
 
+                        // restart search
+                        end_id = start_id;
+                        start_id = -1;
+                        min_id = -1;
                         first = true;
                         continue;
                     }
@@ -122,6 +131,11 @@ public class App
 
                     // 検索結果を見てみる
                     for (Status tweet : tweets) {
+                        // skip RTs
+                        if (tweet.isRetweet()) {
+                            continue;
+                        }
+                        
                         long id = tweet.getId();
 
                         String text = tweet.getText().replaceAll(",", "、");
@@ -135,6 +149,7 @@ public class App
                             + "," + name
                             + "," + screen_name
                             + "," + tweet.getCreatedAt()
+                            + "," + ((Integer) tweet.getRetweetCount()).toString()
                         );
                         bw.newLine(); 
                         count ++;
@@ -148,28 +163,29 @@ public class App
                         }
                     }                
                 }
-
-                System.out.println("Loop:" + ((Integer) loop).toString());            
             }
             catch (TwitterException e) {
+                System.out.println("warning: twitter exception: " + e.getErrorMessage());
             }
 
             bw.close();
         }
         catch (IOException e) {
+            System.out.println("warning: general I/O error: " + e.getMessage());
         }
 
         // save state
         try {
-            props.setProperty("min_id", ((Long) min_id).toString());
-            props.setProperty("start_id", ((Long) start_id).toString());
-            props.setProperty("end_id", ((Long) end_id).toString());
+            props.setProperty(prop + ".min_id", ((Long) min_id).toString());
+            props.setProperty(prop + ".start_id", ((Long) start_id).toString());
+            props.setProperty(prop + ".end_id", ((Long) end_id).toString());
 
             File f = new File("getprops.properties");
             OutputStream out = new FileOutputStream( f );
             props.store(out, "");            
         }
         catch (IOException e) {
+            System.out.println("warning: general I/O error: " + e.getMessage());
         }
         
         if (count == 0) {
@@ -178,8 +194,8 @@ public class App
         }
         
         // send email
-        final String username = "antonio.kamiya@gmail.com";
-        final String password = "Set4gaya";
+        final String username = props.getProperty("mail_user", "user@some.where");
+        final String password = props.getProperty("mail_pass", "password");
 
         props.put("mail.smtp.auth", true);
         props.put("mail.smtp.starttls.enable", true);
@@ -207,17 +223,18 @@ public class App
 
             // prepare message
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress("antonio.kamiya@gmail.com"));
+            message.setFrom(new InternetAddress(username));
             message.setRecipients(Message.RecipientType.TO,
                 InternetAddress.parse("ieiri.seisaku@groups.facebook.com"));
-            message.setSubject("New Proposals Tweets");
-            message.setText("政策ツィート");
+            message.setSubject("新規政策ツィート " + hashTag);
+            message.setText("件数： " + ((Integer) count).toString());
             message.setContent(multipart);
 
             // send
             Transport.send(message);
         }
         catch (MessagingException e) {
+            System.out.println("warning: error sending mail: " + e.getMessage());
         }
     }
 }
