@@ -2,5 +2,6 @@ target/
 
 *.csv
 *.bak
+getprops.properties
 
 nbactions.xml
