@@ -43,11 +43,11 @@ public class App
     @SuppressWarnings("empty-statement")
     public static void main( String[] args )
     {
-//        checkTweets("fukushi", "#ぼくらの福祉政策");
-//        checkTweets("toshi", "#ぼくらの都市計画・成長戦略");
-//        checkTweets("gyosei", "#ぼくらの行政改革");
-//        checkTweets("bosai", "#ぼくらの防災・危機管理計画");
-//        checkTweets("2020", "#ぼくらの2020年計画");
+        checkTweets("fukushi", "#ぼくらの福祉政策");
+        checkTweets("toshi", "#ぼくらの都市計画・成長戦略");
+        checkTweets("gyosei", "#ぼくらの行政改革");
+        checkTweets("bosai", "#ぼくらの防災・危機管理計画");
+        checkTweets("2020", "#ぼくらの2020年計画");
         checkTweets("props", "#ぼくらの政策");
     }
     
