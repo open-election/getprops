@@ -132,27 +132,24 @@ public class App
                     // 検索結果を見てみる
                     for (Status tweet : tweets) {
                         // skip RTs
-                        if (tweet.isRetweet()) {
-                            continue;
-                        }
-                        
                         long id = tweet.getId();
+                        if (!tweet.isRetweet()) {
+                            String text = tweet.getText().replaceAll(",", "、");
+                            User user = tweet.getUser();
+                            String name = user.getName().replaceAll(",", "、");
+                            String screen_name = user.getScreenName().replaceAll(",", "、");
 
-                        String text = tweet.getText().replaceAll(",", "、");
-                        User user = tweet.getUser();
-                        String name = user.getName().replaceAll(",", "、");
-                        String screen_name = user.getScreenName().replaceAll(",", "、");
-
-                        bw.write(
-                            ((Long) id).toString()
-                            + "," + text
-                            + "," + name
-                            + "," + screen_name
-                            + "," + tweet.getCreatedAt()
-                            + "," + ((Integer) tweet.getRetweetCount()).toString()
-                        );
-                        bw.newLine(); 
-                        count ++;
+                            bw.write(
+                                ((Long) id).toString()
+                                + "," + text
+                                + "," + name
+                                + "," + screen_name
+                                + "," + tweet.getCreatedAt()
+                                + "," + ((Integer) tweet.getRetweetCount()).toString()
+                            );
+                            bw.newLine(); 
+                            count ++;
+                        }
 
                         if (min_id < 0 || min_id > id) {
                             min_id = id;
