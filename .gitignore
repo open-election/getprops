@@ -3,5 +3,6 @@ target/
 *.csv
 *.bak
 *.properties
+*.txt
 
 nbactions.xml
