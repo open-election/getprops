@@ -1,10 +1,13 @@
 package to.netparty.getprops;
 
-public class App 
+public class PropsApp 
 {
     public static void main( String[] args )
     {
-        CrawlTweets ct = new CrawlTweets();
+        CrawlTweets ct = new CrawlTweets(
+                "ieiri.seisaku@groups.facebook.com"
+                , "新規政策ツィート "
+        );
         
         ct.checkTweets("fukushi", "#ぼくらの福祉政策");
         ct.checkTweets("toshi", "#ぼくらの都市計画・成長戦略");

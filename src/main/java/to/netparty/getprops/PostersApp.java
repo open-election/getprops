@@ -6,21 +6,45 @@
 
 package to.netparty.getprops;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+
 /**
  *
  * @author antonio
  */
-public class Posters {
+public class PostersApp {
     public static void main( String[] args )
     {
-        CrawlTweets ct = new CrawlTweets();
-
+        CrawlTweets ct = new CrawlTweets(
+                "posterdone@gmail.com"
+                , "ポスター貼付けツィート "
+        );
         
-        ct.checkTweets("fukushi", "#ぼくらの福祉政策");
-        ct.checkTweets("toshi", "#ぼくらの都市計画・成長戦略");
-        ct.checkTweets("gyosei", "#ぼくらの行政改革");
-        ct.checkTweets("bosai", "#ぼくらの防災・危機管理計画");
-        ct.checkTweets("2020", "#ぼくらの2020年計画");
-        ct.checkTweets("props", "#ぼくらの政策");
+        // get search items
+        try {
+            InputStream fis = new FileInputStream("getprops.txt");
+            BufferedReader br = new BufferedReader(
+                    new InputStreamReader(fis, Charset.forName("UTF-8"))
+            );
+            
+            String line;
+            Integer i = 1;
+            while ((line = br.readLine()) != null) {
+                // Deal with the line
+                ct.checkTweets("poster." + i.toString(), line);
+            }
+
+            br.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("warning: getprops.txt not found: " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("warning: getprops.txt read error: " + e.getMessage());
+        }
     }
 }

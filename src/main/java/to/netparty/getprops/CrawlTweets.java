@@ -46,8 +46,13 @@ import javax.mail.internet.MimeMultipart;
 public class CrawlTweets {
     @SuppressWarnings("empty-statement")
     
-    public CrawlTweets()
+    String notifyEmail = "";
+    String notifySubject = "";
+    
+    public CrawlTweets(String email, String subject)
     {
+        notifyEmail = email;
+        notifySubject = subject;
     }
     
     public void checkTweets(String prop, String hashTag)
@@ -221,8 +226,8 @@ public class CrawlTweets {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(username));
             message.setRecipients(Message.RecipientType.TO,
-                InternetAddress.parse("ieiri.seisaku@groups.facebook.com"));
-            message.setSubject("新規政策ツィート " + hashTag);
+                InternetAddress.parse(notifyEmail));
+            message.setSubject(notifySubject + hashTag);
             message.setText("件数： " + ((Integer) count).toString());
             message.setContent(multipart);
 
