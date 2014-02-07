@@ -15,5 +15,9 @@ public class PropsApp
         ct.checkTweets("bosai", "#ぼくらの防災・危機管理計画");
         ct.checkTweets("2020", "#ぼくらの2020年計画");
         ct.checkTweets("props", "#ぼくらの政策");
+        ct.checkTweets("ibasho", "#どんな人でも生きやすい居場所");
+        ct.checkTweets("lifestyle", "#新しい技術と新しいライフスタイル");
+        ct.checkTweets("idea", "#政治家じゃ思いつかないアイデア");
+        ct.checkTweets("jyosei", "#ぼくらが愛する女性のために");
     }    
 }
