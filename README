@@ -1,0 +1,3 @@
+getprops.properties に送信用メールアカウントを指定：
+  * mail_user=＜ログインID＞
+  * mail_pass=＜パスワード＞
