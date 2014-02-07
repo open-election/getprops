@@ -38,6 +38,7 @@ public class PostersApp {
             while ((line = br.readLine()) != null) {
                 // Deal with the line
                 ct.checkTweets("poster." + i.toString(), line);
+                i ++;
             }
 
             br.close();
